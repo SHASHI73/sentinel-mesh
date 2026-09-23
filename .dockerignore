@@ -1,0 +1,12 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.git/
+data/chroma_store/
+data/audit_log.jsonl
+data/*.bak.*
+tests/
+README.md
+results/

@@ -1,0 +1,37 @@
+
+=== Extracted Facts ===
+30 days
+
+=== Retrieved Policy ===
+[INTERNAL POLICY: DATABASE RETENTION SETTINGS]
+Document ID: SEC-2026-RET01
+Target System: Main Production Database Cluster
+Current Retention Configuration:
+- Transaction logging history is preserved natively for a standard duration of 90 days.
+- Backup snapshots are securely archived across three isolated availability zones.
+- Customer session cache tokens are set to clear after 24 hours of inactivity.
+- Authorized jurisdiction for storage: Global Cloud Infrastructure.
+
+
+=== LLM Decision ===
+{
+  "conflict": true,
+  "field_name": null,
+  "old_text": "natively for a standard duration of 90 days.",
+  "new_text": "natively for a standard duration of 30 days.",
+  "new_numeric_value": 30,
+  "reasoning": "The 30-day limit exceeds the 90-day limit, violating the law."
+}
+
+=== Action Result ===
+BLOCKED before any file access: field 'None' is not in the allowlist ['session_cache_ttl', 'transaction_log_retention'].
+
+(Run again with --apply to actually write this change.)
+
+Failed to send telemetry event ClientStartEvent: capture() takes 1 positional argument but 3 were given
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]
+Loading weights: 100%|##########| 103/103 [00:00<00:00, 51375.11it/s]
+Failed to send telemetry event ClientCreateCollectionEvent: capture() takes 1 positional argument but 3 were given
+Failed to send telemetry event CollectionQueryEvent: capture() takes 1 positional argument but 3 were given

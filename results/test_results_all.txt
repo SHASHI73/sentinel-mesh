@@ -1,0 +1,21 @@
+============================= test session starts =============================
+platform win32 -- Python 3.11.4, pytest-8.4.2, pluggy-1.6.0 -- C:\Users\Shashi\AppData\Local\Programs\Python\Python311\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Shashi\Downloads\projects\sentinel-mesh_F\sentinel-mesh
+plugins: anyio-4.12.1
+collecting ... collected 12 items
+
+tests/test_agent.py::test_parse_decision_extracts_json_even_with_surrounding_prose PASSED [  8%]
+tests/test_agent.py::test_parse_decision_raises_on_malformed_json PASSED [ 16%]
+tests/test_agent.py::test_no_conflict_means_no_patch_attempt PASSED      [ 25%]
+tests/test_agent.py::test_conflict_triggers_patch_with_models_own_values PASSED [ 33%]
+tests/test_agent.py::test_field_outside_allowlist_is_blocked_before_mcp_call PASSED [ 41%]
+tests/test_mcp_server.py::test_dry_run_is_the_default_and_does_not_write PASSED [ 50%]
+tests/test_mcp_server.py::test_apply_with_dry_run_false_actually_writes PASSED [ 58%]
+tests/test_mcp_server.py::test_unknown_field_is_rejected_before_any_file_access PASSED [ 66%]
+tests/test_mcp_server.py::test_out_of_range_value_is_rejected PASSED     [ 75%]
+tests/test_mcp_server.py::test_missing_old_text_is_rejected PASSED       [ 83%]
+tests/test_nlp_extractor.py::test_query_hint_uses_numeric_and_org_terms PASSED [ 91%]
+tests/test_nlp_extractor.py::test_query_hint_falls_back_to_raw_text_when_no_entities_found PASSED [100%]
+
+============================= 12 passed in 2.99s ==============================

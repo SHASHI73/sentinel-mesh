@@ -1,0 +1,54 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: sentinel-mesh-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # One-shot job: pulls the model into the shared volume the first time you
+  # run `docker compose up`. Exits once done; harmless to re-run.
+  ollama-pull:
+    image: ollama/ollama:latest
+    depends_on:
+      ollama:
+        condition: service_healthy
+    entrypoint: ["sh", "-c", "OLLAMA_HOST=ollama:11434 ollama pull llama3.2:1b"]
+
+  # One-shot job: embeds data/internal_policy.txt into the Chroma store.
+  # Safe to re-run any time the policy file changes.
+  index:
+    build: .
+    entrypoint: ["python", "scripts/index_policy.py"]
+    volumes:
+      - ./data:/app/data
+
+  app:
+    build: .
+    container_name: sentinel-mesh-app
+    depends_on:
+      ollama:
+        condition: service_healthy
+      ollama-pull:
+        condition: service_completed_successfully
+      index:
+        condition: service_completed_successfully
+    environment:
+      OLLAMA_HOST: "http://ollama:11434"
+    volumes:
+      - ./data:/app/data
+    # Example default command — override at the CLI, e.g.:
+    #   docker compose run --rm app --law-text "..." --apply
+    command:
+      - "--law-text"
+      - "Financial databases are prohibited from storing transaction trail logs beyond 30 days."
+
+volumes:
+  ollama_models:

@@ -1,0 +1,35 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Only the lightweight deps used by the mocked unit tests -- these
+      # tests don't require Ollama or a downloaded spaCy model, so CI stays
+      # fast and doesn't need any external service.
+      - name: Install test dependencies
+        run: pip install pydantic pytest mcp
+
+      - name: Run tests
+        run: pytest tests/ -v
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build app image
+        run: docker build -t sentinel-mesh-app .

@@ -1,0 +1,11 @@
+============================= test session starts =============================
+platform win32 -- Python 3.11.4, pytest-8.4.2, pluggy-1.6.0 -- C:\Users\Shashi\AppData\Local\Programs\Python\Python311\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Shashi\Downloads\projects\sentinel-mesh_F\sentinel-mesh
+plugins: anyio-4.12.1
+collecting ... collected 5 items / 3 deselected / 2 selected
+
+tests/test_agent.py::test_no_conflict_means_no_patch_attempt PASSED      [ 50%]
+tests/test_agent.py::test_conflict_triggers_patch_with_models_own_values PASSED [100%]
+
+======================= 2 passed, 3 deselected in 2.36s =======================
