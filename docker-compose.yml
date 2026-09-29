@@ -50,5 +50,41 @@ services:
       - "--law-text"
       - "Financial databases are prohibited from storing transaction trail logs beyond 30 days."
 
+  # Web app: human-in-the-loop UI on http://localhost:8000
+  #   docker compose up --build web
+  web:
+    build: .
+    container_name: sentinel-mesh-web
+    depends_on:
+      ollama:
+        condition: service_healthy
+      ollama-pull:
+        condition: service_completed_successfully
+      index:
+        condition: service_completed_successfully
+    environment:
+      OLLAMA_HOST: "http://ollama:11434"
+    volumes:
+      - ./data:/app/data
+    ports:
+      - "8000:8000"
+    entrypoint: ["uvicorn", "webapp.server:app", "--host", "0.0.0.0", "--port", "8000"]
+
+  # Evaluation harness: writes evals/RESULTS.md (dry-run only, never patches)
+  #   docker compose run --rm eval
+  eval:
+    build: .
+    depends_on:
+      ollama:
+        condition: service_healthy
+      ollama-pull:
+        condition: service_completed_successfully
+    environment:
+      OLLAMA_HOST: "http://ollama:11434"
+    volumes:
+      - ./data:/app/data
+      - ./evals:/app/evals
+    entrypoint: ["python", "evals/run_eval.py"]
+
 volumes:
   ollama_models:

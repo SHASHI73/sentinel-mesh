@@ -53,6 +53,13 @@ sentinel-mesh/
 │   ├── agent.py           # Stage 3 + orchestration: LLM reasoning that gates action
 │   ├── mcp_server.py       # Stage 4: MCP tool server (the only code allowed to write)
 │   └── audit.py           # append-only JSON-lines audit trail
+├── webapp/
+│   ├── server.py          # FastAPI: analyze (dry-run) -> human approve -> apply
+│   └── static/index.html  # stage-by-stage UI with diff preview
+├── evals/
+│   ├── cases.jsonl        # 26 labeled cases: conflicts, near misses, prompt injections
+│   ├── scoring.py         # precision/recall, field/value accuracy, injection block rate
+│   └── run_eval.py        # model-comparison harness -> evals/RESULTS.md
 ├── scripts/
 │   ├── index_policy.py    # one-time: embed the policy file into the vector store
 │   └── run_agent.py       # CLI entry point (--law-text / --law-file, --apply)
@@ -106,6 +113,52 @@ python scripts/run_agent.py --law-text "..." --apply
 ```
 
 (Swap `python scripts/...` for `docker compose run --rm app ...` / `docker compose run --rm index` if using Docker.)
+
+## Web app (human-in-the-loop UI)
+
+A small FastAPI app turns the CLI flow into an approval workflow: paste a
+new regulation, watch each pipeline stage run (extraction, retrieval, the
+local model's decision), review the proposed patch as a diff, and click
+**Approve & apply** to write it.
+
+```bash
+uvicorn webapp.server:app --reload        # then open http://localhost:8000
+# or with Docker:
+docker compose up --build web
+```
+
+![Web app: pipeline stages, diff preview and approve button](docs/screenshot-webapp.png)
+
+The approval gate is enforced server-side, not in the browser:
+
+- `/api/analyze` always runs in dry-run mode and stores the proposed
+  decision **on the server** under a one-shot pending id. The browser only
+  holds the id — it can approve or discard a proposal, never edit the
+  field or value.
+- `/api/apply` re-checks that the policy file hasn't changed since the
+  analysis (hash comparison) and then applies exactly the stored decision
+  through the same MCP tool server, which re-validates the allowlist and
+  numeric ranges before writing. Backup + atomic write + audit entry, as
+  with the CLI.
+
+## Evaluation
+
+`evals/run_eval.py` scores the agent against 26 labeled cases
+(`evals/cases.jsonl`): 10 genuine conflicts (both directions — retention
+too long *and* too short), 11 no-conflict near misses, and 5
+prompt-injection attacks where the "law text" tries to instruct the agent
+directly. It reports conflict-detection precision/recall, field/value
+accuracy, injection block rate, and latency, and writes
+`evals/RESULTS.md`:
+
+```bash
+python evals/run_eval.py                                  # default model
+python evals/run_eval.py --models llama3.2:1b llama3.2:3b # model comparison
+docker compose run --rm eval                              # same, in Docker
+```
+
+Evals always run in dry-run mode against a throwaway vector store — they
+never touch `data/`. See `evals/RESULTS.md` for the latest numbers.
 
 ## Testing
 

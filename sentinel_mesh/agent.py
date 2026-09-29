@@ -146,6 +146,17 @@ async def _apply_patch_via_mcp(decision: ComplianceDecision, file_path: str, dry
             return "\n".join(block.text for block in result.content if hasattr(block, "text"))
 
 
+def apply_decision(decision: ComplianceDecision, settings: config.AgentSettings) -> str:
+    """Public entry point for applying a previously reviewed decision.
+
+    Used by the web app after a human approves a dry-run result. The MCP
+    server re-validates the allowlist and ranges before writing, so an
+    approved decision cannot smuggle in an out-of-policy patch."""
+    return asyncio.run(
+        _apply_patch_via_mcp(decision, str(settings.policy_file), dry_run=False)
+    )
+
+
 def run_pipeline(law_text: str, settings: config.AgentSettings = config.AgentSettings()) -> PipelineResult:
     """Run the full extract -> retrieve -> reason -> (maybe) act pipeline."""
 

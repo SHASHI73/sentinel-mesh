@@ -13,6 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt \
 
 COPY sentinel_mesh/ sentinel_mesh/
 COPY scripts/ scripts/
+COPY webapp/ webapp/
+COPY evals/ evals/
 COPY data/ data/
 
 # Chroma persistence and audit log live here; mounted as a volume in compose

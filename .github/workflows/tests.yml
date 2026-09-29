@@ -21,7 +21,7 @@ jobs:
       # tests don't require Ollama or a downloaded spaCy model, so CI stays
       # fast and doesn't need any external service.
       - name: Install test dependencies
-        run: pip install pydantic pytest mcp
+        run: pip install pydantic pytest mcp fastapi httpx
 
       - name: Run tests
         run: pytest tests/ -v
